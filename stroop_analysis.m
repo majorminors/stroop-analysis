@@ -145,7 +145,35 @@ for subject = 1:length(d.fileinfo) % loop through each subject
     d.subjects(subject).testdata = t.testdata;
     d.subjects(subject).traindata = t.traindata;
     
+    %% do some filtering
+    t.size_trials = filter_data(d.subjects(subject).testdata.allcodes,'sizes');
+    t.congruent_size_trials = filter_data(t.size_trials,'congruent');
+    t.incongruent_size_trials = filter_data(t.size_trials,'incongruent');
+    [mean(t.congruent_size_trials(1,:)),mean(t.incongruent_size_trials(1,:))]
+    
+    t.colour_trials = filter_data(d.subjects(subject).testdata.allcodes,'colour');
+    t.congruent_colour_trials = filter_data(t.colour_trials,'congruent');
+    t.incongruent_colour_trials = filter_data(t.colour_trials,'incongruent');
+    [mean(t.congruent_colour_trials(1,:)),mean(t.incongruent_colour_trials(1,:))]
+    
 end
 
 fprintf('saving output from %s\n', mfilename);
 save(save_file,'d'); % save all data to a .mat file
+
+function filtered_data = filter_data(data,filter)
+    
+    switch filter
+        case 'congruent'
+            idx = find(data(4,:) == 1); % congruent
+        case 'incongruent'
+            idx = find(data(4,:) == 2); % incongruent
+        case 'sizes'
+            idx = find(data(5,:) == 1); % size info
+        case 'colour'
+            idx = find(data(5,:) == 2); % colour info
+    end
+    
+    filtered_data = data(:,idx);
+
+end

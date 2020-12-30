@@ -16,11 +16,11 @@ t = struct(); % set up a structure for temp data
 
 % set up variables
 rootdir = '/group/woolgar-lab/projects/Dorian/stroop-analysis'; %% root directory - used to inform directory mappings
-datadir = fullfile(rootdir,'data/testdata');
+datadir = fullfile(rootdir,'data/pilot_1');
 p.savefilename = 'processed_data';
 p.datafilepattern = 'jatos_results_*';
 p.keycodes = [1,2,3;49,50,51]; % JS keycode mappings
-d.legend = {1,2,3;'red','blue','green';'small','medium','large';'congruent','incongruent',NaN; 'size', 'colour',NaN}; % keep a record of the codes we'll work with
+d.legend = {1,2,3,4;'red','blue','green',NaN;'short','medium','tall',NaN;'congruent','incongruent',NaN,NaN; 'size', 'colour','size_only','colour_only'}; % keep a record of the codes we'll work with
 
 % directory mapping
 addpath(genpath(fullfile(rootdir, 'tools'))); % add tools folder to path (don't think we need this, but in case)
@@ -29,13 +29,13 @@ save_file = fullfile(datadir, p.savefilename);
 
 %% loop through subjects
 d.fileinfo = dir(fullfile(datadir, p.datafilepattern)); % find all the datafiles and get their info
-for subject = 1%:length(d.fileinfo) % loop through each subject
+for subject = 1:length(d.fileinfo) % loop through each subject
     t.path = fullfile(datadir, d.fileinfo(subject).name); % get the full path to the file
     fprintf(1, 'working with %s\n', t.path); % print that so you can check
     
     t.alldata = loadjson(t.path); % load in the data
     
-    t.id = t.alldata{1}.participant; % since we generated unique ids we'll pull these in
+    t.id = t.alldata{1}.unique_id; % since we generated unique ids we'll pull these in
     
     % init a couple of counters
     t.testcounter = 0;
@@ -115,21 +115,25 @@ for subject = 1%:length(d.fileinfo) % loop through each subject
                     t.curr.allcodes(:,6) = 1;
                 elseif strcmp(t.curr.test_type,d.legend{5,2})
                     t.curr.allcodes(:,6) = 2;
+                elseif strcmp(t.curr.test_type,d.legend{5,3})
+                    t.curr.allcodes(:,6) = 3;
+                elseif strcmp(t.curr.test_type,d.legend{5,4})
+                    t.curr.allcodes(:,6) = 4;
                 end
                 
                 %% load the sorted data according to experiment part
                 if strcmp(t.current_trial.exp_part, 'testing') % put test data in one var
                     t.testcounter = t.testcounter+1;
-                    
+
                     t.testdata.all(:,t.testcounter) = t.curr.all;
                     t.testdata.allcodes(:,t.testcounter) = t.curr.allcodes;
                     
                 elseif strcmp(t.current_trial.exp_part, 'training') % put training data in another
                     t.traincounter = t.traincounter+1;
-                    
+
                     t.traindata.all(:,t.traincounter) = t.curr.all;
                     t.traindata.allcodes(:,t.traincounter) = t.curr.allcodes;
-                    
+
                 end
             end
         end

@@ -1,4 +1,4 @@
-%% do stroop data
+%% deal with stroopjs data
 % Dorian Minors
 % Created: SEP20
 %
@@ -15,12 +15,14 @@ d = struct(); % set up a structure for the data info
 t = struct(); % set up a structure for temp data
 
 % set up variables
-rootdir = '/group/woolgar-lab/projects/Dorian/stroop-analysis'; %% root directory - used to inform directory mappings
+rootdir = pwd; %% root directory - used to inform directory mappings
 datadir = fullfile(rootdir,'data/pilot_1');
 p.savefilename = 'processed_data';
 p.datafilepattern = 'jatos_results_*';
 p.keycodes = [1,2,3;49,50,51]; % JS keycode mappings
 d.legend = {1,2,3,4;'red','blue','green',NaN;'short','medium','tall',NaN;'congruent','incongruent',NaN,NaN; 'size', 'colour','size_only','colour_only';'falsefont','font',NaN,NaN}; % keep a record of the codes we'll work with
+% make sure this legend is correct per the experiment - we code accuracy on the
+% legend, not the experiment
 
 % directory mapping
 addpath(genpath(fullfile(rootdir, 'tools'))); % add tools folder to path (don't think we need this, but in case)
@@ -30,13 +32,28 @@ save_file = fullfile(datadir, p.savefilename);
 %% loop through subjects
 d.fileinfo = dir(fullfile(datadir, p.datafilepattern)); % find all the datafiles and get their info
 t.alldata = {};
+t.skip_this_dataset = 0;
 for file = 1:length(d.fileinfo)
     t.path = fullfile(datadir, d.fileinfo(file).name); % get the full path to the file
     fprintf(1, 'working with %s\n', t.path); % print that so you can check
     
     t.load = loadjson(t.path); % load in the data
     
+    if length(t.load) > 1
+        dataset = [1,length(t.load(1,:))];
+            disp(dataset);
+        while (dataset(1) <= dataset(2))
+            if isempty(t.load{1,dataset(1)})
+                t.load(:,dataset(1)) = [];
+                dataset(2) = dataset(2)-1;
+                disp(dataset);
+            end
+            dataset(1) = dataset(1)+1;
+        end
+    end           
+
     t.alldata = [t.alldata,t.load]; % concat those into one var, so each subject is a cell
+    
 end
 d.alldata = t.alldata; % save all the data
     
@@ -96,53 +113,80 @@ for subject = 1:length(t.alldata) % loop through each subject
                 % consolidate all that data
                 % all = cell array complete
                 % allcodes = array with numeric codes based on d.legend
+                
+                % code rt
                 t.curr.all(:,1) = num2cell(t.curr.rt);
                 t.curr.allcodes(:,1) = t.curr.rt;
                 
+                % code response button
                 t.curr.all(:,2) = num2cell(t.curr.resp);
                 t.curr.allcodes(:,2) = t.curr.resp;
                 
-                t.curr.all(:,3) = {t.curr.stim_size};
-                if strcmp(t.curr.stim_size,d.legend{3,1})
-                    t.curr.allcodes(:,3) = 1;
-                elseif strcmp(t.curr.stim_size,d.legend{3,2})
-                    t.curr.allcodes(:,3) = 2;
-                elseif strcmp(t.curr.stim_size,d.legend{3,3})
-                    t.curr.allcodes(:,3) = 3;
-                end
+                % 3 - accuracy calculated during coding of test type
                 
-                t.curr.all(:,4) = {t.curr.stim_colour};
-                if strcmp(t.curr.stim_colour,d.legend{2,1})
+                % code stimulus size
+                t.curr.all(:,4) = {t.curr.stim_size};
+                if strcmp(t.curr.stim_size,d.legend{3,1})
                     t.curr.allcodes(:,4) = 1;
-                elseif strcmp(t.curr.stim_colour,d.legend{2,2})
+                elseif strcmp(t.curr.stim_size,d.legend{3,2})
                     t.curr.allcodes(:,4) = 2;
-                elseif strcmp(t.curr.stim_colour,d.legend{2,3})
+                elseif strcmp(t.curr.stim_size,d.legend{3,3})
                     t.curr.allcodes(:,4) = 3;
                 end
                 
-                t.curr.all(:,5) = {t.curr.congruency};
-                if strcmp(t.curr.congruency,d.legend{4,1})
+                % code stimulus colour
+                t.curr.all(:,5) = {t.curr.stim_colour};
+                if strcmp(t.curr.stim_colour,d.legend{2,1})
                     t.curr.allcodes(:,5) = 1;
-                elseif strcmp(t.curr.congruency,d.legend{4,2})
+                elseif strcmp(t.curr.stim_colour,d.legend{2,2})
                     t.curr.allcodes(:,5) = 2;
+                elseif strcmp(t.curr.stim_colour,d.legend{2,3})
+                    t.curr.allcodes(:,5) = 3;
                 end
                 
-                t.curr.all(:,6) = {t.curr.test_type};
-                if strcmp(t.curr.test_type,d.legend{5,1})
+                % code congruency
+                t.curr.all(:,6) = {t.curr.congruency};
+                if strcmp(t.curr.congruency,d.legend{4,1})
                     t.curr.allcodes(:,6) = 1;
-                elseif strcmp(t.curr.test_type,d.legend{5,2})
+                elseif strcmp(t.curr.congruency,d.legend{4,2})
                     t.curr.allcodes(:,6) = 2;
+                end
+                
+                % code test type (size or colour)
+                t.curr.all(:,7) = {t.curr.test_type};
+                if strcmp(t.curr.test_type,d.legend{5,1})
+                    % size
+                    t.curr.allcodes(:,7) = 1;
+                elseif strcmp(t.curr.test_type,d.legend{5,2})
+                    % coour
+                    t.curr.allcodes(:,7) = 2;
                 elseif strcmp(t.curr.test_type,d.legend{5,3})
-                    t.curr.allcodes(:,6) = 3;
+                    % size
+                    t.curr.allcodes(:,7) = 3;
                 elseif strcmp(t.curr.test_type,d.legend{5,4})
-                    t.curr.allcodes(:,6) = 4;
+                    %colour
+                    t.curr.allcodes(:,7) = 4;
                 end
 
-                t.curr.all(:,7) = {t.curr.stim_type};
+                % code accuracy
+                if t.curr.allcodes(:,7) == 1 || t.curr.allcodes(:,7) == 3 && t.curr.resp == t.curr.allcodes(:,4)
+                    % if a colour trial and response matches colour code
+                    t.curr.accuracy = 1;
+                elseif t.curr.allcodes(:,7) == 2 || t.curr.allcodes(:,7) == 4 && t.curr.resp == t.curr.allcodes(:,5)
+                    % if a size trial and response matches size code
+                    t.curr.accuracy = 1;
+                else
+                    t.curr.accuracy = 0;
+                end
+                t.curr.all(:,3) = {t.curr.accuracy};
+                t.curr.allcodes(:,3) = t.curr.accuracy;
+                
+                % code stimulus type (font or falsefont)
+                t.curr.all(:,8) = {t.curr.stim_type};
                 if strcmp(t.curr.stim_type,d.legend{6,1})
-                    t.curr.allcodes(:,7) = 1;
+                    t.curr.allcodes(:,8) = 1;
                 elseif strcmp(t.curr.stim_type,d.legend{6,2})
-                    t.curr.allcodes(:,7) = 2;
+                    t.curr.allcodes(:,8) = 2;
                 end
                 
                 %% load the sorted data according to experiment part
@@ -192,6 +236,11 @@ for subject = 1:length(t.alldata) % loop through each subject
     t.results.means = [mean(t.results.colour_congruent(1,:),'omitnan'),mean(t.results.colour_incongruent(1,:),'omitnan');mean(t.results.colour_congruent_falsefont(1,:),'omitnan'),mean(t.results.colour_incongruent_falsefont(1,:),'omitnan');mean(t.results.colour_congruent_font(1,:),'omitnan'),mean(t.results.colour_incongruent_font(1,:),'omitnan');mean(t.results.size_congruent(1,:),'omitnan'),mean(t.results.size_incongruent(1,:),'omitnan');mean(t.results.size_congruent_falsefont(1,:),'omitnan'),mean(t.results.size_incongruent_falsefont(1,:),'omitnan');mean(t.results.size_congruent_font(1,:),'omitnan'),mean(t.results.size_incongruent_font(1,:),'omitnan')];
     disp(t.results.means);
     
+    t.results.accuracy = [accthis(t.results.colour_congruent(3,:)),accthis(t.results.colour_incongruent(3,:));accthis(t.results.colour_congruent_falsefont(3,:)),accthis(t.results.colour_incongruent_falsefont(3,:));accthis(t.results.colour_congruent_font(3,:)),accthis(t.results.colour_incongruent_font(3,:));accthis(t.results.size_congruent(3,:)),accthis(t.results.size_incongruent(3,:));accthis(t.results.size_congruent_falsefont(3,:)),accthis(t.results.size_incongruent_falsefont(3,:));accthis(t.results.size_congruent_font(3,:)),accthis(t.results.size_incongruent_font(3,:))];
+    disp(t.results.accuracy);
+    
+    t.results.overview = [mean(d.subjects(subject).testdata.allcodes(1,:));accthis(d.subjects(subject).testdata.allcodes(3,:))];
+    
     d.subjects(subject).results = t.results;
     
 end
@@ -203,19 +252,23 @@ function filtered_data = filter_data(data,filter)
     
     switch filter
         case 'congruent'
-            idx = find(data(4,:) == 1); % congruent
+            idx = find(data(5,:) == 1); % congruent
         case 'incongruent'
-            idx = find(data(4,:) == 2); % incongruent
+            idx = find(data(5,:) == 2); % incongruent
         case 'sizes'
-            idx = find(data(5,:) == 1); % size info
+            idx = find(data(6,:) == 1); % size info
         case 'colour'
-            idx = find(data(5,:) == 2); % colour info
+            idx = find(data(6,:) == 2); % colour info
         case 'falsefont'
-            idx = find(data(7,:) == 1); % print info
+            idx = find(data(8,:) == 1); % print info
         case 'font'
-            idx = find(data(7,:) == 2); % print info
+            idx = find(data(8,:) == 2); % print info
     end
     
     filtered_data = data(:,idx);
 
+end
+
+function accuracy = accthis(data)
+    accuracy = sum(data)/length(data);
 end

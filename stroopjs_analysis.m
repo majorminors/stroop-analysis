@@ -25,7 +25,7 @@ d.legend = {1,2,3,4;'red','blue','green',NaN;'short','medium','tall',NaN;'congru
 % legend, not the experiment
 
 % directory mapping
-addpath(genpath(fullfile(rootdir, 'tools'))); % add tools folder to path (don't think we need this, but in case)
+addpath(genpath(fullfile(rootdir, 'lib'))); % add libraries path
 
 save_file = fullfile(datadir, p.savefilename);
 

@@ -57,6 +57,12 @@ for file = 1:length(d.fileinfo)
 end
 d.alldata = t.alldata; % save all the data
 
+% init these
+d.testdata.all = [];
+d.testdata.allcodes = [];
+d.traindata.all = [];
+d.traindata.allcodes = [];
+
 % init some results - same structure exists for each subject in d.subjects.results
 d.results.size = [];
 d.results.size_congruent = [];
@@ -75,7 +81,7 @@ d.results.colour_incongruent_falsefont = [];
 d.results.colour_incongruent_font = [];
     
 for subject = 1:length(t.alldata) % loop through each subject
-    fprintf(1, 'working with subject %f\n', subject); % print that so you can check
+    fprintf(1, 'working with subject %1.0f\n', subject); % print that so you can check
 
     t.this_subj_data = t.alldata{subject};
     
@@ -228,7 +234,11 @@ for subject = 1:length(t.alldata) % loop through each subject
     d.subjects(subject).id = t.id;
     d.subjects(subject).JSONdata = t.this_subj_data;
     d.subjects(subject).testdata = t.testdata;
+    d.testdata.all = [d.testdata.all,t.testdata.all];
+    d.testdata.allcodes = [d.testdata.allcodes,t.testdata.allcodes];
     d.subjects(subject).traindata = t.traindata;
+    d.traindata.allcodes = [d.traindata.allcodes,t.traindata.allcodes];
+    d.traindata.all = [d.traindata.all,t.traindata.all];
     d.subjects(subject).results = []; % init this
     
     %% do some filtering
@@ -284,13 +294,13 @@ function filtered_data = filter_data(data,filter)
     
     switch filter
         case 'congruent'
-            idx = find(data(5,:) == 1); % congruent
+            idx = find(data(6,:) == 1); % congruent
         case 'incongruent'
-            idx = find(data(5,:) == 2); % incongruent
+            idx = find(data(6,:) == 2); % incongruent
         case 'sizes'
-            idx = find(data(6,:) == 1); % size info
+            idx = find(data(7,:) == 1); % size info
         case 'colour'
-            idx = find(data(6,:) == 2); % colour info
+            idx = find(data(7,:) == 2); % colour info
         case 'falsefont'
             idx = find(data(8,:) == 1); % print info
         case 'font'

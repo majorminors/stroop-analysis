@@ -15,32 +15,65 @@ d = struct(); % set up a structure for the data info
 t = struct(); % set up a structure for temp data
 
 % set up variables
-if ispc
-    rootdir = 'G:\Woolgar-Lab\projects\Dorian\stroop-analysis'
-else
-    rootdir = '/group/woolgar-lab/projects/Dorian/stroop-analysis'; %% root directory - used to inform directory mappings
-end
+rootdir = pwd;
 
 datadir = fullfile(rootdir,'data/pilot_1');
 p.savefilename = 'processed_data';
 
 load(fullfile(datadir,p.savefilename));
 
-sizeff = [];
-sizenorm = [];
-colourff = [];
-colournorm = [];
+% Rows:
+% 1) rt
+% 2) response button
+% 3) accuracy
+% 4-8) related to trial type, but these are already sorted in the structure
+plotrow = 1;
+
+sizes = d.results.size(plotrow,:);
+sizes_congruent = d.results.size_congruent(plotrow,:);
+sizes_congruent_falsefont = d.results.size_congruent_falsefont(plotrow,:);
+sizes_congruent_font = d.results.size_congruent_font(plotrow,:);
+sizes_incongruent = d.results.size_incongruent(plotrow,:);
+sizes_incongruent_falsefont = d.results.size_incongruent_falsefont(plotrow,:);
+sizes_incongruent_font = d.results.size_incongruent_font(plotrow,:);
+
+colour = d.results.colour(plotrow,:);
+colour_congruent = d.results.colour_congruent(plotrow,:);
+colour_congruent_falsefont = d.results.colour_congruent_falsefont(plotrow,:);
+colour_congruent_font = d.results.colour_congruent_font(plotrow,:);
+colour_incongruent = d.results.colour_incongruent(plotrow,:);
+colour_incongruent_falsefont = d.results.colour_incongruent_falsefont(plotrow,:);
+colour_incongruent_font = d.results.colour_incongruent_font(plotrow,:);
+
+% boxplot(sizes(1,:))%,'Labels',{'size ff','size norm','colour ff','colour norm'})
+x = [1,2];
+y = [nanmean(sizes),nanmean(colour)];
+
+plot(x,y,'*')
+extend = 10;
+axis([0 3 min([y])-extend max([y])+extend]);
+hold on
+line(x,y)
+hold off
+
+
 for subject = 1:length(d.subjects)
-    sizeff = [sizeff,d.subjects(subject).results.size_congruent_falsefont(1,:)];
-    sizenorm = [sizenorm,d.subjects(subject).results.size_congruent_font(1,:)];
-    colourff = [colourff,d.subjects(subject).results.colour_congruent_falsefont(1,:)];
-    colournorm = [colournorm,d.subjects(subject).results.colour_congruent_font(1,:)];  
+    subj_sizes(subject,:) = d.subjects(subject).results.size(plotrow,:);
+    subj_sizes_congruent(subject,:) = d.subjects(subject).results.size_congruent(plotrow,:);
+    subj_sizes_congruent_falsefont(subject,:) = d.subjects(subject).results.size_congruent_falsefont(plotrow,:);
+    subj_sizes_congruent_font(subject,:) = d.subjects(subject).results.size_congruent_font(plotrow,:);
+    subj_sizes_incongruent(subject,:) = d.subjects(subject).results.size_incongruent(plotrow,:);
+    subj_sizes_incongruent_falsefont(subject,:) = d.subjects(subject).results.size_incongruent_falsefont(plotrow,:);
+    subj_sizes_incongruent_font(subject,:) = d.subjects(subject).results.size_incongruent_font(plotrow,:);
+
+    subj_colour(subject,:) = d.subjects(subject).results.colour(plotrow,:);
+    subj_colour_congruent(subject,:) = d.subjects(subject).results.colour_congruent(plotrow,:);
+    subj_colour_congruent_falsefont(subject,:) = d.subjects(subject).results.colour_congruent_falsefont(plotrow,:);
+    subj_colour_congruent_font(subject,:) = d.subjects(subject).results.colour_congruent_font(plotrow,:);
+    subj_colour_incongruent(subject,:) = d.subjects(subject).results.colour_incongruent(plotrow,:);
+    subj_colour_incongruent_falsefont(subject,:) = d.subjects(subject).results.colour_incongruent_falsefont(plotrow,:);
+    subj_colour_incongruent_font(subject,:) = d.subjects(subject).results.colour_incongruent_font(plotrow,:);
 end
-sizeff = sizeff';
-sizenorm = sizenorm';
-colourff = colourff';
-colournorm = colournorm';
-boxplot([sizeff,sizenorm,colourff,colournorm],'Labels',{'size ff','size norm','colour ff','colour norm'})
 
 % boxplot(sizeff)
 % %cols

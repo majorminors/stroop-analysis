@@ -56,6 +56,23 @@ for file = 1:length(d.fileinfo)
     
 end
 d.alldata = t.alldata; % save all the data
+
+% init some results - same structure exists for each subject in d.subjects.results
+d.results.size = [];
+d.results.size_congruent = [];
+d.results.size_congruent_falsefont = [];
+d.results.size_congruent_font = [];
+d.results.size_incongruent = [];
+d.results.size_incongruent_falsefont = [];
+d.results.size_incongruent_font = [];
+
+d.results.colour = [];
+d.results.colour_congruent = [];
+d.results.colour_congruent_falsefont = [];
+d.results.colour_congruent_font = [];
+d.results.colour_incongruent = [];
+d.results.colour_incongruent_falsefont = [];
+d.results.colour_incongruent_font = [];
     
 for subject = 1:length(t.alldata) % loop through each subject
     fprintf(1, 'working with subject %f\n', subject); % print that so you can check
@@ -242,6 +259,21 @@ for subject = 1:length(t.alldata) % loop through each subject
     t.results.overview = [mean(d.subjects(subject).testdata.allcodes(1,:));accthis(d.subjects(subject).testdata.allcodes(3,:))];
     
     d.subjects(subject).results = t.results;
+    d.results.size = [d.results.size, t.results.size];
+    d.results.size_congruent = [d.results.size_congruent, t.results.size_congruent];
+    d.results.size_congruent_falsefont = [d.results.size_congruent_falsefont,t.results.size_congruent_falsefont];
+    d.results.size_congruent_font = [d.results.size_congruent_font, t.results.size_congruent_font];
+    d.results.size_incongruent = [d.results.size_incongruent,t.results.size_incongruent];
+    d.results.size_incongruent_falsefont = [d.results.size_incongruent_falsefont,t.results.size_incongruent_falsefont];
+    d.results.size_incongruent_font = [d.results.size_incongruent_font,t.results.size_incongruent_font];
+    
+    d.results.colour = [d.results.colour,t.results.colour];
+    d.results.colour_congruent = [d.results.colour_congruent,t.results.colour_congruent];
+    d.results.colour_congruent_falsefont = [d.results.colour_congruent_falsefont, t.results.colour_congruent_falsefont];
+    d.results.colour_congruent_font = [d.results.colour_congruent_font, t.results.colour_congruent_font];
+    d.results.colour_incongruent = [d.results.colour_incongruent, t.results.colour_incongruent];
+    d.results.colour_incongruent_falsefont = [d.results.colour_incongruent_falsefont,t.results.colour_incongruent_falsefont];
+    d.results.colour_incongruent_font = [d.results.colour_incongruent_font,t.results.colour_incongruent_font];
     
 end
 

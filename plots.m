@@ -38,105 +38,102 @@ data = d.testdata.allcodes;
 % 7) test type (1 = size trial, 2 = colour trial)
 % 8) font type (1 = falsefont, 2 = font)
 %filter_data(data,sizing,colour,congruency,trialtype,font)
+%plot([1 1]*1.5, ylim, '--k')                % vertical line at ‘x=1.5’
+%plot(xlim, [1 1]*1.5, '--k')                % horizontal line at ‘y=1.5’
 
-%% colours
-vars(1,:) = filter_data(data,'short',[],'incongruent','colour','font');
-vars(2,:) = filter_data(data,'short',[],'incongruent','colour','falsefont');
-vars(3,:) = filter_data(data,'medium',[],'incongruent','colour','font');
-vars(4,:) = filter_data(data,'medium',[],'incongruent','colour','falsefont');
-vars(5,:) = filter_data(data,'tall',[],'incongruent','colour','font');
-vars(6,:) = filter_data(data,'tall',[],'incongruent','colour','falsefont');
+% is our stroop working:
+% are incongruent trials slower than congruent trials in the stroop (colour-font) task?
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','colour','font');
+vars(2,:) = filter_data(data,[],[],'incongruent','colour','font');
+make_params(vars,'means'); % yes they are
 
-[fig1,xpoints,means,sem] = make_params(vars);
+% is our colour baseline working:
+% are colour baseline (falsefont-colour) trials similar across both congruent and incongruent trials
+% and somewhere between stroop (colour-font) congruent and incongruent trials?
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','colour','font');
+vars(2,:) = filter_data(data,[],[],'congruent','colour','falsefont');
+vars(3,:) = filter_data(data,[],[],'incongruent','colour','falsefont');
+vars(4,:) = filter_data(data,[],[],'incongruent','colour','font');
+make_params(vars,'means'); % kind of? seems like there might be an effect of incongruency though...
 
-vars(1,:) = filter_data(data,'short',[],'congruent','colour','font');
-vars(2,:) = filter_data(data,'short',[],'congruent','colour','falsefont');
-vars(3,:) = filter_data(data,'medium',[],'congruent','colour','font');
-vars(4,:) = filter_data(data,'medium',[],'congruent','colour','falsefont');
-vars(5,:) = filter_data(data,'tall',[],'congruent','colour','font');
-vars(6,:) = filter_data(data,'tall',[],'congruent','colour','falsefont');
+% is there an effect of size (visualisation - though we should quantify)
 
-[fig2,xpoints,means,sem] = make_params(vars);
+% does the size task work as a word baseline?
+% if so there should be no effect of congruency
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','sizes','falsefont');
+vars(2,:) = filter_data(data,[],[],'incongruent','sizes','falsefont');
+vars(3,:) = filter_data(data,[],[],'congruent','sizes','font');
+vars(4,:) = filter_data(data,[],[],'incongruent','sizes','font');
+make_params(vars,'means',1); % looks good, though fonts appear to interfere
+plot([1 1]*2.5, ylim, '--k'); hold off
 
-%% sizes
-vars(1,:) = filter_data(data,'short',[],'incongruent','sizes','font');
-vars(2,:) = filter_data(data,'short',[],'incongruent','sizes','falsefont');
-vars(3,:) = filter_data(data,'medium',[],'incongruent','sizes','font');
-vars(4,:) = filter_data(data,'medium',[],'incongruent','sizes','falsefont');
-vars(5,:) = filter_data(data,'tall',[],'incongruent','sizes','font');
+% performance should be worse for colour naming during incongruent trials
+% than size naming
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','colour','font');
+vars(2,:) = filter_data(data,[],[],'incongruent','colour','font');
+vars(3,:) = filter_data(data,[],[],'congruent','sizes','font');
+vars(4,:) = filter_data(data,[],[],'incongruent','sizes','font');
+% make_params(vars,'means'); % yep!
+% % but this shouldn't be true during false font trials
+% clear vars;
+vars(5,:) = filter_data(data,[],[],'congruent','colour','falsefont');
+vars(6,:) = filter_data(data,[],[],'incongruent','colour','falsefont');
+vars(7,:) = filter_data(data,[],[],'congruent','sizes','falsefont');
+vars(8,:) = filter_data(data,[],[],'incongruent','sizes','falsefont');
+make_params(vars,'means',1); % almost, but there appears to be an effect of incongruency in the colour baseline!
+plot([1 1]*2.5, ylim, ':k');
+plot([1 1]*6.5, ylim, ':k');
+plot([1 1]*4.5, ylim, '--k'); hold off
+
+% lets look at this congruency effect in the false font
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','colour','falsefont');
+vars(2,:) = filter_data(data,[],[],'incongruent','colour','falsefont');
+make_params(vars,'means');
+clear vars;
+vars(1,:) = filter_data(data,[],'red','congruent','colour','falsefont');
+vars(2,:) = filter_data(data,[],'blue','congruent','colour','falsefont');
+vars(3,:) = filter_data(data,[],'green','congruent','colour','falsefont');
+vars(4,:) = filter_data(data,[],'red','incongruent','colour','falsefont');
+vars(5,:) = filter_data(data,[],'blue','incongruent','colour','falsefont');
+vars(6,:) = filter_data(data,[],'green','incongruent','colour','falsefont');
+make_params(vars,'means',1); % could be incongruent blue, but mostly driven by incongruent green!
+plot(xlim, [1 1]*715, ':k');
+plot([1 1]*3.5, ylim, '--k'); hold off
+
+% lets look at this difference in font/falsefont across size conditions
+clear vars;
+vars(1,:) = filter_data(data,[],[],'congruent','sizes','falsefont');
+vars(2,:) = filter_data(data,[],[],'incongruent','sizes','falsefont');
+vars(3,:) = filter_data(data,[],[],'congruent','sizes','font');
+vars(4,:) = filter_data(data,[],[],'incongruent','sizes','font');
+make_params(vars,'means',1);
+plot([1 1]*2.5, ylim, '--k'); hold off
+clear vars;
+vars(1,:) = filter_data(data,'short',[],'congruent','sizes','falsefont');
+vars(2,:) = filter_data(data,'medium',[],'congruent','sizes','falsefont');
+vars(3,:) = filter_data(data,'tall',[],'congruent','sizes','falsefont');
+vars(4,:) = filter_data(data,'short',[],'incongruent','sizes','falsefont');
+vars(5,:) = filter_data(data,'medium',[],'incongruent','sizes','falsefont');
 vars(6,:) = filter_data(data,'tall',[],'incongruent','sizes','falsefont');
-
-[fig3,xpoints,means,sem] = make_params(vars);
-
-vars(1,:) = filter_data(data,'short',[],[],'sizes','font');
-vars(2,:) = filter_data(data,'short',[],[],'sizes','falsefont');
-vars(3,:) = filter_data(data,'medium',[],[],'sizes','font');
-vars(4,:) = filter_data(data,'medium',[],[],'sizes','falsefont');
-
-
-vars(1,:) = filter_data(data,[],[],[],'sizes','font');
-vars(2,:) = filter_data(data,[],[],[],'sizes','falsefont');
-vars(3,:) = filter_data(data,[],[],[],'colour','font');
-vars(4,:) = filter_data(data,[],[],[],'colour','falsefont');
-
-[fig4,xpoints,means,sem] = make_params(vars);
-
-% vars(1,:) = filter_data(data,[],'red','incongruent','colour','font');
-% vars(2,:) = filter_data(data,[],'red','incongruent','colour','falsefont');
-% vars(3,:) = filter_data(data,[],'green','incongruent','colour','font');
-% vars(4,:) = filter_data(data,[],'green','incongruent','colour','falsefont');
-% vars(5,:) = filter_data(data,[],'blue','incongruent','colour','font');
-% vars(6,:) = filter_data(data,[],'blue','incongruent','colour','falsefont');
-
-[xpoints,means,sem] = make_params(vars);
+vars(7,:) = filter_data(data,'short',[],'congruent','sizes','font');
+vars(8,:) = filter_data(data,'medium',[],'congruent','sizes','font');
+vars(9,:) = filter_data(data,'tall',[],'congruent','sizes','font');
+vars(10,:) = filter_data(data,'short',[],'incongruent','sizes','font');
+vars(11,:) = filter_data(data,'medium',[],'incongruent','sizes','font');
+vars(12,:) = filter_data(data,'tall',[],'incongruent','sizes','font');
+make_params(vars,'means',1); % shorts are pulling false fonts down, mediums are pulling fonts up
+plot([1 1]*3.5, ylim, ':k');
+plot([1 1]*9.5, ylim, ':k');
+%plot(xlim, [1 1]*710, ':k');
+plot([1 1]*6.5, ylim, '--k'); hold off
 
 
 
-% sizes = d.results.size(1,:);
-% sizes_congruent = d.results.size_congruent(1,:);
-% sizes_congruent_falsefont = d.results.size_congruent_falsefont(1,:);
-% sizes_congruent_font = d.results.size_congruent_font(1,:);
-% sizes_incongruent = d.results.size_incongruent(1,:);
-% sizes_incongruent_falsefont = d.results.size_incongruent_falsefont(1,:);
-% sizes_incongruent_font = d.results.size_incongruent_font(1,:);
-% 
-% colour = d.results.colour(1,:);
-% colour_congruent = d.results.colour_congruent(1,:);
-% colour_congruent_falsefont = d.results.colour_congruent_falsefont(1,:);
-% colour_congruent_font = d.results.colour_congruent_font(1,:);
-% colour_incongruent = d.results.colour_incongruent(1,:);
-% colour_incongruent_falsefont = d.results.colour_incongruent_falsefont(1,:);
-% colour_incongruent_font = d.results.colour_incongruent_font(1,:);
-% 
-% % boxplot(sizes(1,:))%,'Labels',{'size ff','size norm','colour ff','colour norm'})
-% x = [1,2];
-% y = [nanmean(sizes_congruent),nanmean(colour)];
-% z = [nansem(sizes),nansem(colour)];
-% 
-% plot(x,y,'*')
-% hold on
-% er = errorbar(1:2,y,z);
-% extend = 10;
-% axis([0 3 min([y])-extend max([y])+extend]);
-% hold on
-% line(x,y)
-% hold off
-% 
-% 
-% for subject = 1:length(d.subjects)
-%     subj_sizes(subject,:) = d.subjects(subject).results.size(1,:);
-%     subj_sizes_congruent(subject,:) = d.subjects(subject).results.size_congruent(1,:);
-%     subj_sizes_congruent_falsefont(subject,:) = d.subjects(subject).results.size_congruent_falsefont(1,:);
-%     subj_sizes_congruent_font(subject,:) = d.subjects(subject).results.size_congruent_font(1,:);
-%     subj_sizes_incongruent(subject,:) = d.subjects(subject).results.size_incongruent(1,:);
-%     subj_sizes_incongruent_falsefont(subject,:) = d.subjects(subject).results.size_incongruent_falsefont(1,:);
-%     subj_sizes_incongruent_font(subject,:) = d.subjects(subject).results.size_incongruent_font(1,:);
-%     
-%     subj_colour(subject,:) = d.subjects(subject).results.colour(1,:);
-%     subj_colour_congruent(subject,:) = d.subjects(subject).results.colour_congruent(1,:);
-%     subj_colour_congruent_falsefont(subject,:) = d.subjects(subject).results.colour_congruent_falsefont(1,:);
-%     subj_colour_congruent_font(subject,:) = d.subjects(subject).results.colour_congruent_font(1,:);
-%     subj_colour_incongruent(subject,:) = d.subjects(subject).results.colour_incongruent(1,:);
-%     subj_colour_incongruent_falsefont(subject,:) = d.subjects(subject).results.colour_incongruent_falsefont(1,:);
-%     subj_colour_incongruent_font(subject,:) = d.subjects(subject).results.colour_incongruent_font(1,:);
-% end
+
+
+

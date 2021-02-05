@@ -97,6 +97,24 @@ for subject = 1:length(t.alldata) % loop through each subject
         
         t.current_trial = t.this_subj_data{trial};
         
+        % let's pull the procedure of the subject (this is actually pushed
+        % to the last trial)
+        if isfield(t.current_trial, 'procedure')
+            t.procedure = cell(1,4);
+            for iProc = 1:4 % loop through the four tests
+                % index into the procedure variable into the first trial of each test and search the
+                % stimulus string for size or colour - the stimulus is an html instruction that tells the participant to pay
+                % attention to colour or size, so it should contain those words
+               if contains(t.current_trial.procedure{1,iProc}{1,1}.stimulus,'height')
+                   t.procedure{iProc} = 'size';
+               elseif contains(t.current_trial.procedure{1,iProc}{1,1}.stimulus,'colour')
+                   t.procedure{iProc} = 'colour';
+               else
+                   error('your code does not catch the procedure type properly')
+               end
+            end
+        end
+        
         % don't worry about unlabelled trials, or fixation trials
         if isfield(t.current_trial, 'exp_part')
             if ~strcmp(t.current_trial.exp_part, 'fixation')
@@ -232,6 +250,7 @@ for subject = 1:length(t.alldata) % loop through each subject
     
     %% collate the outputs per subject
     d.subjects(subject).id = t.id;
+    d.subjects(subject).procedure = t.procedure;
     d.subjects(subject).JSONdata = t.this_subj_data;
     d.subjects(subject).testdata = t.testdata;
     d.testdata.all = [d.testdata.all,t.testdata.all];

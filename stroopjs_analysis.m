@@ -100,18 +100,31 @@ for subject = 1:length(t.alldata) % loop through each subject
         % let's pull the procedure of the subject (this is actually pushed
         % to the last trial)
         if isfield(t.current_trial, 'procedure')
-            t.procedure = cell(1,4);
+            t.procedure = cell(2,4);
             for iProc = 1:4 % loop through the four tests
                 % index into the procedure variable into the first trial of each test and search the
                 % stimulus string for size or colour - the stimulus is an html instruction that tells the participant to pay
                 % attention to colour or size, so it should contain those words
                if contains(t.current_trial.procedure{1,iProc}{1,1}.stimulus,'height')
-                   t.procedure{iProc} = 'size';
+                   t.procedure{1,iProc} = 'size';
                elseif contains(t.current_trial.procedure{1,iProc}{1,1}.stimulus,'colour')
-                   t.procedure{iProc} = 'colour';
+                   t.procedure{1,iProc} = 'colour';
                else
                    error('your code does not catch the procedure type properly')
                end
+               
+               % now we pull whether it's a false font or not\
+               
+               for iTrl = 1:length(t.current_trial.procedure{1,iProc})
+                   tmp = t.current_trial.procedure{1,iProc}{1,iTrl};
+                   if isfield(tmp,'timeline_variables')
+                       if contains(tmp.timeline_variables{1,1}.stim_path,'/ff')
+                           t.procedure{2,iProc} = 'falsefont';
+                       else
+                           t.procedure{2,iProc} = 'font';
+                       end
+                   end
+               end; clear tmp 
             end
         end
         

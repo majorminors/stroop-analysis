@@ -26,11 +26,22 @@ end
 addpath(genpath(fullfile(rootdir, 'lib'))); % add libraries to path
 
 load(fullfile(datadir,p.savefilename),'d');
-data = d.testdata.allcodes;
+alldata = d.testdata.allcodes;
+fffirst=[];
+sfirst=[];
 for subj = 1:length(d.subjects)
     subject(subj).data = d.subjects(subj).testdata.allcodes;
     subject(subj).procedure = d.subjects(subj).procedure;
+    if strcmp(subject(subj).procedure{1,1}, 'size')
+        sfirst = [sfirst,subject(subj).data];
+    end
+    if strcmp(subject(subj).procedure{2,1},'falsefont')
+        fffirst = [fffirst,subject(subj).data];
+    end    
 end
+
+data = fffirst;
+data = sfirst;
 
 
 % Rows:
@@ -43,8 +54,8 @@ end
 % 7) test type (1 = size trial, 2 = colour trial)
 % 8) font type (1 = falsefont, 2 = font)
 %filter_data(data,sizing,colour,congruency,trialtype,font)
-%plot([1 1]*1.5, ylim, '--k')                % vertical line at ‘x=1.5’
-%plot(xlim, [1 1]*1.5, '--k')                % horizontal line at ‘y=1.5’
+%plot([1 1]*1.5, ylim, '--k')                % vertical line at ï¿½x=1.5ï¿½
+%plot(xlim, [1 1]*1.5, '--k')                % horizontal line at ï¿½y=1.5ï¿½
 
 % is our stroop working:
 % are incongruent trials slower than congruent trials in the stroop (colour-font) task?

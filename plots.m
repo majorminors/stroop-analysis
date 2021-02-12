@@ -119,7 +119,9 @@ vars(1,:) = filter_data(data,[],[],'incongruent','colour','font');
 vars(2,:) = filter_data(data,[],[],'incongruent','sizes','font');
 vars(3,:) = filter_data(data,[],[],'incongruent','colour','falsefont');
 vars(4,:) = filter_data(data,[],[],'incongruent','sizes','falsefont');
-make_params(vars,'means');
+make_params(vars,'means',1);
+plot([1 1]*2.5, ylim, ':k');
+saveas(gcf,'2x2','bmp')
 
 % lets look at this congruency effect in the false font
 % clear vars;

@@ -41,7 +41,7 @@ for subj = 1:length(d.subjects)
 end
 
 data = fffirst;
-data = sfirst;
+%data = sfirst;
 
 
 % Rows:

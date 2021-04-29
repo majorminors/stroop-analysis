@@ -79,7 +79,8 @@ d.results.colour_congruent_font = [];
 d.results.colour_incongruent = [];
 d.results.colour_incongruent_falsefont = [];
 d.results.colour_incongruent_font = [];
-    
+
+d.removals = []; % an array of subjects to remove from the final result
 for subject = 1:length(t.alldata) % loop through each subject
     fprintf(1, 'working with subject %1.0f\n', subject); % print that so you can check
 
@@ -144,8 +145,8 @@ for subject = 1:length(t.alldata) % loop through each subject
                 % get response (convert from JS keycode using p.keycodes
                 if isempty(t.current_trial.key_press) % if response is empty
                     t.curr.resp = NaN;
-                elseif isempty(p.keycodes(1,find(p.keycodes(2,:) == t.current_trial.key_press))) % else if response is not valid
-                    t.curr.resp = t.current_trial.key_press; % save the javascript keycode
+                elseif isempty(p.keycodes(1,find(p.keycodes(2,:) == t.current_trial.key_press))) % if they pressed a key not in p.keycodes % else if response is not valid
+                    t.curr.resp = t.current_trial.key_press; % save whatever the javascript keycode is
                 else
                     t.curr.resp = p.keycodes(1,find(p.keycodes(2,:) == t.current_trial.key_press));
                 end
@@ -223,12 +224,14 @@ for subject = 1:length(t.alldata) % loop through each subject
                 end
 
                 % code accuracy
-                if t.curr.allcodes(:,7) == 1 || t.curr.allcodes(:,7) == 3 && t.curr.resp == t.curr.allcodes(:,4)
+                if (t.curr.allcodes(:,7) == 1 || t.curr.allcodes(:,7) == 3) && t.curr.resp == t.curr.allcodes(:,4)
                     % if a colour trial and response matches colour code
                     t.curr.accuracy = 1;
-                elseif t.curr.allcodes(:,7) == 2 || t.curr.allcodes(:,7) == 4 && t.curr.resp == t.curr.allcodes(:,5)
+                elseif (t.curr.allcodes(:,7) == 2 || t.curr.allcodes(:,7) == 4) && t.curr.resp == t.curr.allcodes(:,5)
                     % if a size trial and response matches size code
                     t.curr.accuracy = 1;
+                elseif isnan(t.curr.rt)
+                    t.curr.accuracy = 0;
                 else
                     t.curr.accuracy = 0;
                 end
@@ -298,6 +301,8 @@ for subject = 1:length(t.alldata) % loop through each subject
     t.results.accuracy = [accthis(t.results.colour_congruent(3,:)),accthis(t.results.colour_incongruent(3,:));accthis(t.results.colour_congruent_falsefont(3,:)),accthis(t.results.colour_incongruent_falsefont(3,:));accthis(t.results.colour_congruent_font(3,:)),accthis(t.results.colour_incongruent_font(3,:));accthis(t.results.size_congruent(3,:)),accthis(t.results.size_incongruent(3,:));accthis(t.results.size_congruent_falsefont(3,:)),accthis(t.results.size_incongruent_falsefont(3,:));accthis(t.results.size_congruent_font(3,:)),accthis(t.results.size_incongruent_font(3,:))];
     disp(t.results.accuracy);
     
+    t.results.ies = t.results.means./t.results.accuracy;
+    
     t.results.overview = [mean(d.subjects(subject).testdata.allcodes(1,:));accthis(d.subjects(subject).testdata.allcodes(3,:))];
     
     d.subjects(subject).results = t.results;
@@ -317,7 +322,18 @@ for subject = 1:length(t.alldata) % loop through each subject
     d.results.colour_incongruent_falsefont = [d.results.colour_incongruent_falsefont,t.results.colour_incongruent_falsefont];
     d.results.colour_incongruent_font = [d.results.colour_incongruent_font,t.results.colour_incongruent_font];
     
+    t.prompt = 'keep it ([y]/n)?  ';
+    t.keep = input(t.prompt,'s');
+    if isempty(t.keep) || strcmp(t.keep,'y'); t.keep = 1; else t.keep = 0; end
+    if ~t.keep
+        d.removals = [d.removals,subject];
+    end
 end
+
+for i = 1:numel(d.removals) % loop through removals
+    d.subjects(d.removals(i))=[]; % and remove the removals
+    d.removals=d.removals-1; % since you just removed one, -1 from the subject numbers
+end; clear i
 
 fprintf('saving output from %s\n', mfilename);
 save(save_file,'d'); % save all data to a .mat file

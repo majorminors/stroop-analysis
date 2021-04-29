@@ -40,6 +40,7 @@ for subj = 1:length(d.subjects)
     end    
 end
 
+data = alldata;
 data = fffirst;
 %data = sfirst;
 
@@ -63,7 +64,11 @@ clear vars;
 vars(1,:) = filter_data(data,[],[],'congruent','colour','font');
 vars(2,:) = filter_data(data,[],[],'incongruent','colour','font');
 make_params(vars,'means'); % yes they are
-saveas(gcf,'stroop','bmp')
+saveas(gcf,'stroop','bmp'); 
+
+
+
+
 
 % is our colour baseline working:
 % are colour baseline (falsefont-colour) trials similar across both congruent and incongruent trials
@@ -108,6 +113,15 @@ plot([1 1]*2.5, ylim, ':k');
 plot([1 1]*6.5, ylim, ':k');
 plot([1 1]*4.5, ylim, '--k'); hold off
 saveas(gcf,'colour-vs-size','bmp')
+% more concise version
+clear vars;
+vars(1,:) = filter_data(data,[],[],'incongruent','colour','font');
+vars(2,:) = filter_data(data,[],[],'incongruent','sizes','font');
+vars(3,:) = filter_data(data,[],[],'incongruent','colour','falsefont');
+vars(4,:) = filter_data(data,[],[],'incongruent','sizes','falsefont');
+make_params(vars,'means',1);
+plot([1 1]*2.5, ylim, ':k');
+saveas(gcf,'2x2','bmp')
 
 % lets look at this congruency effect in the false font
 % clear vars;
@@ -124,7 +138,7 @@ vars(6,:) = filter_data(data,[],'green','incongruent','colour','falsefont');
 make_params(vars,'means',1); % could be incongruent blue, but mostly driven by incongruent green!
 %plot(xlim, [1 1]*715, ':k');
 plot([1 1]*3.5, ylim, '--k'); hold off
-saveas(gcf,'colours-all-falsefonts','bmp')
+saveas(gcf,'falsefont-congruency','bmp')
 
 % lets look at this difference in font/falsefont across size conditions
 % clear vars;
@@ -152,7 +166,7 @@ plot([1 1]*3.5, ylim, ':k');
 plot([1 1]*9.5, ylim, ':k');
 %plot(xlim, [1 1]*710, ':k');
 plot([1 1]*6.5, ylim, '--k'); hold off
-saveas(gcf,'size-discrepency','bmp')
+saveas(gcf,'size-discrepency-sizefirst','bmp')
 
 clear vars;
 vars(1,:) = filter_data(data,'short',[],'congruent','colour','falsefont');
